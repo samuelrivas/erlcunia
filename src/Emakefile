@@ -1,0 +1,1 @@
+{'erlcunia/midi/*', [debug_info, report, {outdir, "../ebin/erlcunia/midi"}]}.
