@@ -1,0 +1,20 @@
+Cunia Notation
+--------------
+
+  Internally, erlcunia uses the so called cunia notation to represent music.
+Cunia notation is a list of cunia events:
+
+  Cunia = [CuniaEvent].
+  CuniaEvent = {notes, [Note], Length} | {rest, Length}
+  Note = integer(), {integer(), tie}
+  Length = BaseLength | {tuplet, integer(), BaseLength}
+  BaseLength = 1 | 2 | 4 | 8 ...
+
+  The tie length is added to the previous length of tied note.
+  The integer value in the tuplet value is the number of subdivisions in the 
+BaseLength note. For example, a quarter note triplet is represented as follows:
+  {tuplet, 3, 4}
+
+  * Cunia examples:
+
+  - [{notes, [10,20], 4}, {notes, [{10, tie}, 20], 8}, {rest, 8}, {rest, 4}, {notes, [10], 4}] 
