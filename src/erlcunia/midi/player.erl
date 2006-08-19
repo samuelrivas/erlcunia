@@ -19,12 +19,14 @@
 -import(erlcunia.midi).
 -import(gen_server).
 -import(lists).
+-import(dict).
 
 -record(state, {
 	  header		% binary()
 	 }).
 
 -define(PPQN, 120).
+-define(PLAYER, "/usr/bin/timidity -").
 
 %%====================================================================
 %% API
@@ -110,7 +112,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 %%--------------------------------------------------------------------
 play(Binary, #state{header = Header}) ->
-    Port = open_port({spawn, "/usr/bin/timidity -"}, [stream, binary, eof]),
+    Port = open_port({spawn, ?PLAYER}, [stream, binary, eof]),
     Track = binary_writer:track(Binary),
     port_command(Port, list_to_binary([Header, Track])),
     receive
@@ -119,23 +121,53 @@ play(Binary, #state{header = Header}) ->
     end.
 
 cunia2midi(Cunia) ->
-    cunia2events(Cunia, 0, []).
+    cunia2events(Cunia, 0, event_dict()).
 
-%% Events = [{Event, Pulse}]  -- In a deep list
-%% Event = {note_on, Note} | {note_off, Note}
+%% Events = dict({Note, [Event]})
+%% Note = integer() -- All the notes from 0 to 127 are allocated with an
+%%                     initial empty event list
+%% Event = {note_on, Pulse} | {note_off, Pulse}
 %% Pulse = integer()
 cunia2events([{notes, Notes, Length} | T], Pulse, Events) ->
-    %% TODO: Handle ties
-    NoteOnEvents = [{{note_on, Note}, Pulse} || Note <- Notes],
     NextPulse = add_length(Pulse, Length),
-    NoteOffEvents = [{{note_off, Note}, NextPulse} || Note <- Notes],
-    cunia2events(T, NextPulse, [NoteOnEvents, NoteOffEvents | Events]);
+    NewEvents = add_note_events(Notes, Pulse, NextPulse, Events),
+    cunia2events(T, NextPulse, NewEvents);
 cunia2events([{rest, Length} | T], Pulse, Events) ->
     cunia2events(T, add_length(Pulse, Length), Events);
 cunia2events([], _Pulse, Events) ->
-    lists:keysort(2, lists:flatten(Events)).
+    %% TODO: Translate the events dict to a sorted list of {Pulse, Event}
+    %% tuples
+    Events.
 
-add_length(Pulse, {tuplet, Divisions, BaseLength}) ->
+add_note_events(Notes, OnPulse, OffPulse, Events) ->
+    F = fun({Note, tie}, Acc) ->
+		D = remove_last_off_event(Note, OnPulse, Acc),
+		dict:append(Note, {note_off, OffPulse}, D);
+	   (Note, Acc) ->
+		dict:append_list(Note, [{note_on, OnPulse},
+					{note_off, OffPulse}],
+				 Acc)
+	end,
+    lists:foldl(F, Events, Notes).
+
+remove_last_off_event(Note, TiePulse, Events) ->
+    NoteEvents = dict:fetch(Note, Events),
+    dict:store(Note, remove_last_off_event(TiePulse, NoteEvents), Events).
+
+remove_last_off_event(TiePulse, [{note_off, TiePulse} | []]) ->
+    [];
+remove_last_off_event(TiePulse, [H | T]) ->
+    [H | remove_last_off_event(TiePulse, T)];
+remove_last_off_event(_, _) ->
+    exit(bad_tie).
+
+add_length(_Pulse, {tuplet, _Divisions, _BaseLength}) ->
     throw(unimplemented);
 add_length(Pulse, BaseLength) ->
     Pulse + round(?PPQN * 4/BaseLength).
+
+event_dict() ->
+    F = fun(N, Dict) ->
+		dict:store(N, [], Dict)
+	end,
+    lists:foldl(F, dict:new(), lists:seq(0, 127)).
