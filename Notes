@@ -17,7 +17,12 @@ BaseLength note. For example, a quarter note triplet is represented as follows:
 
   * Cunia examples:
 
-  - [{notes, [10,20], 4}, {notes, [{10, tie}, 20], 8}, {rest, 8}, {rest, 4}, {notes, [10], 4}] 
+  - [{notes, [10,20], 4}, {notes, [{10, tie}, 20], 8}, {rest, 8}, {rest, 4}, {notes, [10], 4}]
+  - In st_thomas.cunia file you can see a short study on Sonny Rollins's St Thomas standard.
+    You can load it to the erlang shell by calling 
+       {ok, [StThomas]} = file:consult(FileLocation)
+
+  erlcunia.midi.player:play(Cunia) plays the Cunia using a external midi player.
 
   Cunia notation is converted to midi with a intermediate step. In that step, Cunias are
 translated to an "Event List". A event list is a list of tuples like {Event, Note, Pulse},
@@ -26,6 +31,6 @@ where:
   - Event is either note_on or note_off.
   - Note is the midi note (an integer).
   - Pulse is the time of the event in absolute pulse (they are translated to relative pulses
-    in midi bynaries.
+    in midi binaries.
 
   This list is ordered by Pulse, so midi translation is straightforward. 
