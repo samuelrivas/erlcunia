@@ -38,10 +38,11 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-%% Binary is the track content for now. Later, it would be an erlangish
-%% representation of the midi information
-play(Binary) ->
-    gen_server:call(?MODULE, {play, Binary}, infinity).
+%% See Notes.txt for an explanation of the Cunia notation
+%% Note that cunia to midi translation is performed on the client side,
+%% the player server adds the midi header and calls to the midi player.
+play(Cunia) ->
+    gen_server:call(?MODULE, {play, cunia2midi_track(Cunia)}, infinity).
 
 %%====================================================================
 %% gen_server callbacks
@@ -111,22 +112,23 @@ code_change(_OldVsn, State, _Extra) ->
 %%--------------------------------------------------------------------
 %% Internal functions
 %%--------------------------------------------------------------------
-play(Binary, #state{header = Header}) ->
+play(Track, #state{header = Header}) ->
     Port = open_port({spawn, ?PLAYER}, [stream, binary, eof]),
-    Track = binary_writer:track(Binary),
     port_command(Port, list_to_binary([Header, Track])),
     receive
 	{Port, eof} ->
 	    port_close(Port)
     end.
 
-cunia2midi(Cunia) ->
-    cunia2events(Cunia, 0, event_dict()).
+cunia2midi_track(Cunia) ->
+    Events = cunia2events(Cunia, 0, event_dict()),
+    TrackContent = events2midi(Events),
+    binary_writer:track(TrackContent).
 
 %% Events = dict({Note, [Event]})
 %% Note = integer() -- All the notes from 0 to 127 are allocated with an
 %%                     initial empty event list
-%% Event = {note_on, Pulse} | {note_off, Pulse}
+%% Event = {note_on, Note, Pulse} | {note_off, Pulse}
 %% Pulse = integer()
 cunia2events([{notes, Notes, Length} | T], Pulse, Events) ->
     NextPulse = add_length(Pulse, Length),
@@ -135,17 +137,18 @@ cunia2events([{notes, Notes, Length} | T], Pulse, Events) ->
 cunia2events([{rest, Length} | T], Pulse, Events) ->
     cunia2events(T, add_length(Pulse, Length), Events);
 cunia2events([], _Pulse, Events) ->
-    %% TODO: Translate the events dict to a sorted list of {Pulse, Event}
-    %% tuples
-    Events.
+
+    %% Create a sorted list of events
+    NoteEvents = [E || {_Note, E} <- dict:to_list(Events), E /= []],
+    lists:keysort(3, lists:flatten(NoteEvents)).
 
 add_note_events(Notes, OnPulse, OffPulse, Events) ->
     F = fun({Note, tie}, Acc) ->
 		D = remove_last_off_event(Note, OnPulse, Acc),
-		dict:append(Note, {note_off, OffPulse}, D);
+		dict:append(Note, {note_off, Note, OffPulse}, D);
 	   (Note, Acc) ->
-		dict:append_list(Note, [{note_on, OnPulse},
-					{note_off, OffPulse}],
+		dict:append_list(Note, [{note_on, Note, OnPulse},
+					{note_off, Note, OffPulse}],
 				 Acc)
 	end,
     lists:foldl(F, Events, Notes).
@@ -154,7 +157,7 @@ remove_last_off_event(Note, TiePulse, Events) ->
     NoteEvents = dict:fetch(Note, Events),
     dict:store(Note, remove_last_off_event(TiePulse, NoteEvents), Events).
 
-remove_last_off_event(TiePulse, [{note_off, TiePulse} | []]) ->
+remove_last_off_event(TiePulse, [{note_off, _, TiePulse} | []]) ->
     [];
 remove_last_off_event(TiePulse, [H | T]) ->
     [H | remove_last_off_event(TiePulse, T)];
@@ -171,3 +174,17 @@ event_dict() ->
 		dict:store(N, [], Dict)
 	end,
     lists:foldl(F, dict:new(), lists:seq(0, 127)).
+
+events2midi(Events) ->
+    list_to_binary([events2midi(Events, 0), binary_writer:end_of_track()]).
+
+events2midi([{Type, Note, Pulse} | T], LastPulse) ->
+    Binary = case Type of
+		 note_on ->
+		     binary_writer:note_on(Pulse - LastPulse, 0, Note, 16#7F);
+		 note_off ->
+		     binary_writer:note_off(Pulse - LastPulse, 0, Note, 16#7F)
+	     end,
+    [Binary | events2midi(T, Pulse)];
+events2midi([], _Pulse) ->
+    [].
