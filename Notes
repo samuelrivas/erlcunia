@@ -22,7 +22,8 @@ BaseLength note. For example, a quarter note triplet is represented as follows:
     You can load it to the erlang shell by calling 
        {ok, [StThomas]} = file:consult(FileLocation)
 
-  erlcunia.midi.player:play(Cunia) plays the Cunia using a external midi player.
+  erlcunia.midi.player:play(Cunia) plays the Cunia using a external midi player. You can try it
+with the previous examples. The first one is not very musical, but StThomas should play nice.
 
   Cunia notation is converted to midi with a intermediate step. In that step, Cunias are
 translated to an "Event List". A event list is a list of tuples like {Event, Note, Pulse},
