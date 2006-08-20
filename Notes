@@ -7,13 +7,16 @@ Cunia notation is a list of cunia events:
   Cunia = [CuniaEvent].
   CuniaEvent = {notes, [Note], Length} | {rest, Length}
   Note = integer(), {integer(), tie}
-  Length = BaseLength | {tuplet, integer(), BaseLength}
+  Length = BaseLength | {tuplet, integer(), integer(), BaseLength}
   BaseLength = 1 | 2 | 4 | 8 ...
 
   The tie length is added to the previous length of tied note.
-  The integer value in the tuplet value is the number of subdivisions in the 
-BaseLength note. For example, a quarter note triplet is represented as follows:
-  {tuplet, 3, 4}
+  Second integer value in the tuplet value is the number of subdivisions in the 
+BaseLength note. First integer value is the amount of those subdivisions to count for
+the note length. For example, a quarter note triplet is represented as follows:
+  {tuplet, 1, 3, 4}
+and two swing eigth notes may be written as follows:
+  {tuplet, 2, 3, 4} and {tuplet, 1, 3, 4}
 
   * Cunia examples:
 

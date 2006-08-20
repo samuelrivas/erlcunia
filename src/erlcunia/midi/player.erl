@@ -162,10 +162,10 @@ remove_last_off_event(TiePulse, [{note_off, _, TiePulse} | []]) ->
 remove_last_off_event(TiePulse, [H | T]) ->
     [H | remove_last_off_event(TiePulse, T)];
 remove_last_off_event(_, _) ->
-    exit(bad_tie).
+    erlang:error(bad_tie).
 
-add_length(_Pulse, {tuplet, _Divisions, _BaseLength}) ->
-    throw(unimplemented);
+add_length(Pulse, {tuplet, Count, Divisions, BaseLength}) ->
+    Pulse + round(?PPQN * 4/BaseLength * Count/Divisions);
 add_length(Pulse, BaseLength) ->
     Pulse + round(?PPQN * 4/BaseLength).
 

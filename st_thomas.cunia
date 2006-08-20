@@ -5,5 +5,11 @@
  {notes,[48,55,64,69],1}, %% C6
  {notes,[52,59,62,67],2}, {notes,[45,52,61,67],2}, %% Em7, A7
  {notes,[50,57,65,72],2}, {notes,[49,55,60,65],4}, {notes,[48,55,64,69],4}, %% Dm7, Db7#11, C6
- {notes,[48,55,{64,tie},{69,tie}],1}
+ {notes,[48,55,{64,tie},{69,tie}],1},
+
+ {rest,4}, {notes,[67],{tuplet,2,3,4}}, {notes,[72],{tuplet,1,3,4}}, {rest,{tuplet,2,3,4}},
+    {notes,[71],{tuplet,1,3,4}}, {rest,{tuplet,2,3,4}}, {notes,[69],{tuplet,1,3,4}},
+ {notes,[67],4}, {notes,[69],4}, {notes,[64],4}, {notes,[65],4},
+ {notes,[67],4}, {notes,[72],4},{notes,[71],4},{notes,[72],4},
+ {rest, 1}
 ].
