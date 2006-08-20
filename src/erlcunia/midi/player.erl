@@ -10,7 +10,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, play/1]).
+-export([start_link/0, play/1, set_tempo/1, get_tempo/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -22,7 +22,8 @@
 -import(dict).
 
 -record(state, {
-	  header		% binary()
+	  header,		% binary()
+	  tempo			% integer()
 	 }).
 
 -define(PPQN, 120).
@@ -38,11 +39,18 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-%% See Notes.txt for an explanation of the Cunia notation
-%% Note that cunia to midi translation is performed on the client side,
-%% the player server adds the midi header and calls to the midi player.
+%% See Notes.txt for an explanation of the Cunia notation Note that
+%% most of cunia to midi translation is performed on the client side,
+%% the player server adds the midi header and the tempo and calls to
+%% the midi player.
 play(Cunia) ->
-    gen_server:call(?MODULE, {play, cunia2midi_track(Cunia)}, infinity).
+    gen_server:call(?MODULE, {play, cunia2midi_events(Cunia)}, infinity).
+
+get_tempo() ->
+    gen_server:call(?MODULE, get_tempo).
+
+set_tempo(BeatsPerMinute) ->
+    gen_server:call(?MODULE, {set_tempo, BeatsPerMinute}).
 
 %%====================================================================
 %% gen_server callbacks
@@ -57,7 +65,8 @@ play(Cunia) ->
 %%--------------------------------------------------------------------
 init([]) ->
     %% Midi file with one track and ?PPQN pulses per quarter note
-    {ok, #state{header = binary_writer:header(0, 1, ?PPQN)}}.
+    {ok, #state{header = binary_writer:header(0, 1, ?PPQN),
+		tempo = 120}}.
 
 %%--------------------------------------------------------------------
 %% Function: %% handle_call(Request, From, State) -> {reply, Reply, State} |
@@ -68,6 +77,10 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
+handle_call(get_tempo, _From, State) ->
+    {reply, State#state.tempo, State};
+handle_call({set_tempo, Tempo}, _From, State) ->
+    {reply, ok, State#state{tempo = Tempo}};
 handle_call({play, Binary}, _From, State) ->
     Result = play(Binary, State),
     {reply, Result, State};
@@ -112,18 +125,21 @@ code_change(_OldVsn, State, _Extra) ->
 %%--------------------------------------------------------------------
 %% Internal functions
 %%--------------------------------------------------------------------
-play(Track, #state{header = Header}) ->
+play(MidiEvents, #state{header = Header, tempo = Tempo}) ->
     Port = open_port({spawn, ?PLAYER}, [stream, binary, eof]),
+    TrackContent = [binary_writer:tempo(0, Tempo), MidiEvents,
+		    binary_writer:end_of_track()],
+    Track = binary_writer:track(list_to_binary(TrackContent)),
     port_command(Port, list_to_binary([Header, Track])),
     receive
 	{Port, eof} ->
 	    port_close(Port)
     end.
 
-cunia2midi_track(Cunia) ->
+%% Return a list of binaries with midi events
+cunia2midi_events(Cunia) ->
     Events = cunia2events(Cunia, 0, event_dict()),
-    TrackContent = events2midi(Events),
-    binary_writer:track(TrackContent).
+    events2midi(Events).
 
 %% Events = dict({Note, [Event]})
 %% Note = integer() -- All the notes from 0 to 127 are allocated with an
@@ -176,7 +192,7 @@ event_dict() ->
     lists:foldl(F, dict:new(), lists:seq(0, 127)).
 
 events2midi(Events) ->
-    list_to_binary([events2midi(Events, 0), binary_writer:end_of_track()]).
+    events2midi(Events, 0).
 
 events2midi([{Type, Note, Pulse} | T], LastPulse) ->
     Binary = case Type of

@@ -8,7 +8,7 @@
 -module(erlcunia.midi.binary_writer).
 
 -export([header/3, track/1, track_name/1, end_of_track/0, note_off/4,
-	 note_on/4]).
+	 note_on/4, tempo/2]).
 -import(lists).
 
 %% Format = 0 | 1 | 2
@@ -32,6 +32,10 @@ note_on(Delta, Channel, Note, Velocity) ->
 
 note_off(Delta, Channel, Note, Velocity) ->
     event(Delta, 8, Channel, Note, Velocity).
+
+tempo(Delta, BPM) ->
+    Microseconds = round(60000000/BPM),
+    meta_event(Delta, 16#51, <<Microseconds:24>>).
 
 %%%-------------------------------------------------------------------
 %%% Module internals
