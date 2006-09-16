@@ -24,7 +24,7 @@
 	 terminate/2, code_change/3]).
 
 -record(state, {
-	  range = {48,72},
+	  range = {36, 72},
 	  lesson = undefined,
 	  last_question = undefined	% {Test, Pitch}
 	 }).
@@ -53,7 +53,7 @@ get_last_question() ->
     call(get_last_question).
 
 call(Msg) ->
-    gen_server:call(?MODULE, Msg).
+    gen_server:call(?MODULE, Msg, infinity).
 
 %%====================================================================
 %% gen_server callbacks
@@ -160,6 +160,15 @@ choose_pitch({Min, Max}) ->
 	    Min
     end.
     
-play(Test, Pitch) ->
-    {_Cunia, Tag} = Test,
-    .io:format("Playing ~p from ~p~n", [Tag, Pitch]).
+play({Cunia, _Tag}, Pitch) ->
+    erlcunia.midi.player:play(transpose(Cunia, Pitch)).
+
+transpose([], _Pitch) ->
+    [];
+transpose([Event | T], Pitch) ->
+    [transpose_event(Event, Pitch) | transpose(T, Pitch)].
+
+transpose_event({notes, Notes, Length}, Pitch) ->
+    {notes, [Note + Pitch || Note <- Notes], Length};
+transpose_event(Event, _Pitch) ->
+    Event.
