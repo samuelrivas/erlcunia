@@ -16,7 +16,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, load_lesson/1, play/0, get_range/0,
+-export([start_link/0, load_lesson/1, play/0, get_range/0, set_range/2,
 	 get_last_question/0]).
 
 %% gen_server callbacks
@@ -48,6 +48,9 @@ play() ->
 
 get_range() ->
     call(get_range).
+
+set_range(Min, Max) ->
+    call({set_range, {Min, Max}}).
 
 get_last_question() ->
     call(get_last_question).
@@ -92,6 +95,9 @@ handle_call(play, _From, State) ->
 
 handle_call(get_range, _From, State) ->
     {reply, State#state.range, State};
+
+handle_call({set_range, Range}, _From, State) ->
+    {reply, ok, State#state{range = Range}};
 
 handle_call(get_last_question, _From, State) ->
     {reply, State#state.last_question, State};
@@ -145,7 +151,6 @@ load_lesson_file(File) ->
 	{error, Reason} ->
 	    erlang:error(file:format_error(Reason))
     end.
-
 
 choose_test(Lesson) ->
     Questions = util:find(questions, Lesson),
