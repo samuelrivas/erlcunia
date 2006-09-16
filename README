@@ -42,7 +42,7 @@ where:
 Lesson format
 -------------
 
-  One lesson is basically a list of relative cunias (first not is 0) paired with a to identify
+  One lesson is basically a list of relative cunias (first not is 0) paired with a tag to identify
 each of them:
 
   Lesson = [{questions, [Question]}]
