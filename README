@@ -21,8 +21,8 @@ and two swing eigth notes may be written as follows:
   * Cunia examples:
 
   - [{notes, [10,20], 4}, {notes, [{10, tie}, 20], 8}, {rest, 8}, {rest, 4}, {notes, [10], 4}]
-  - In st_thomas.cunia file you can see a short study on Sonny Rollins's St Thomas standard.
-    You can load it to the erlang shell by calling 
+  - In priv/st_thomas.cunia file you can see a short study on Sonny Rollins's St Thomas
+    standard. You can load it to the erlang shell by calling 
        {ok, [StThomas]} = file:consult(FileLocation)
 
   erlcunia.midi.player:play(Cunia) plays the Cunia using a external midi player. You can try it
