@@ -1,0 +1,5 @@
+{questions,
+  [{[{notes, [0, 4, 7], 2}], major},
+   {[{notes, [0, 3, 7], 2}], minor},
+   {[{notes, [0, 4, 8], 2}], augmented},
+   {[{notes, [0, 3, 6], 2}], diminished}]}.
