@@ -1,0 +1,36 @@
+{questions,
+  [{[{notes, [0], 4}, {notes, [2], 4}, {notes, [4], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [9], 4}, {notes, [11], 4}, {notes, [12]}], 
+     ionian},
+
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [3], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [9], 4}, {notes, [10], 4}, {notes, [12]}], 
+     dorian},
+
+   {[{notes, [0], 4}, {notes, [1], 4}, {notes, [3], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [8], 4}, {notes, [10], 4}, {notes, [12]}], 
+     prhygian},
+
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [4], 4}, {notes, [6], 4},
+     {notes, [7], 4}, {notes, [9], 4}, {notes, [11], 4}, {notes, [12]}], 
+     lydian},
+
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [4], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [9], 4}, {notes, [10], 4}, {notes, [12]}], 
+     mixolydian},
+
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [3], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [8], 4}, {notes, [10], 4}, {notes, [12]}], 
+     aeolian},
+
+   {[{notes, [0], 4}, {notes, [1], 4}, {notes, [3], 4}, {notes, [5], 4},
+     {notes, [6], 4}, {notes, [8], 4}, {notes, [10], 4}, {notes, [12]}], 
+     locrian},
+
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [3], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [8], 4}, {notes, [11], 4}, {notes, [12]}], 
+     harmonic_minor},
+
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [3], 4}, {notes, [5], 4},
+     {notes, [7], 4}, {notes, [9], 4}, {notes, [11], 4}, {notes, [12]}], 
+     melodic_minor}]}.
