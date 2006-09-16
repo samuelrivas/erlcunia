@@ -1,1 +1,3 @@
+{'erlcunia/*', [debug_info, report, {outdir, "../ebin/erlcunia"}]}.
 {'erlcunia/midi/*', [debug_info, report, {outdir, "../ebin/erlcunia/midi"}]}.
+{'erlcunia/lesson/*', [debug_info, report, {outdir, "../ebin/erlcunia/lesson"}]}.

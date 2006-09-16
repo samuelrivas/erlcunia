@@ -35,6 +35,19 @@ where:
   - Event is either note_on or note_off.
   - Note is the midi note (an integer).
   - Pulse is the time of the event in absolute pulse (they are translated to relative pulses
-    in midi binaries.
+    in midi binaries).
 
-  This list is ordered by Pulse, so midi translation is straightforward. 
+  This list is ordered by Pulse, so midi translation is straightforward.
+
+Lesson format
+-------------
+
+  One lesson is basically a list of relative cunias (first not is 0) paired with a to identify
+each of them:
+
+  Lesson = [{questions, [Question]}]
+  Question = {Cunia, Tag}
+  Tag = atom()
+
+  The lesson player automatically transposes the relative cunia to a random pitch and plays
+it in the cunia player.
