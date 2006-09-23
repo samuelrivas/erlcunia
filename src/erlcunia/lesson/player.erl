@@ -87,6 +87,8 @@ init([]) ->
 handle_call({load_lesson, File}, _From, State) ->
     {reply, ok, State#state{lesson = load_lesson_file(File)}};
 
+handle_call(play, _From, State) when State#state.lesson == undefined ->
+    erlang:error(no_lesson);
 handle_call(play, _From, State) ->
     {Cunia, Tag} = choose_test(State#state.lesson),
     Pitch = choose_pitch(State#state.range),
