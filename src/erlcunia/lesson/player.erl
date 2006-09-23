@@ -16,8 +16,8 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, load_lesson/1, play/0, get_range/0, set_range/2,
-	 get_last_question/0]).
+-export([start_link/0, load_lesson/1, play_random/0, play_test/2, get_range/0,
+	 set_range/2, get_last_question/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -43,8 +43,11 @@ load_lesson(File) ->
     call({load_lesson, File}).
 
 %% Returns the tag of the test being played
-play() ->
+play_random() ->
     call(play).
+
+play_test(Tag, Pitch) ->
+    call({play, Tag, Pitch}).
 
 get_range() ->
     call(get_range).
@@ -92,8 +95,13 @@ handle_call(play, _From, State) when State#state.lesson == undefined ->
 handle_call(play, _From, State) ->
     {Cunia, Tag} = choose_test(State#state.lesson),
     Pitch = choose_pitch(State#state.range),
-    play({Cunia, Tag}, Pitch),
+    play(Cunia, Pitch),
     {reply, {Tag, Pitch}, State#state{last_question = {Tag, Pitch}}};
+
+handle_call({play, Tag, Pitch}, _From, State) ->
+    Cunia = get_cunia(State#state.lesson, Tag),
+    play(Cunia, Pitch),
+    {reply, ok, State};
 
 handle_call(get_range, _From, State) ->
     {reply, State#state.range, State};
@@ -159,6 +167,15 @@ choose_test(Lesson) ->
     Rand = random:uniform(length(Questions)),
     lists:nth(Rand, Questions).
 
+get_cunia(Lesson, Tag) ->
+    Questions = util:find(questions, Lesson),
+    case lists:keysearch(Tag, 2, Questions) of
+	{value, {Cunia, Tag}} ->
+	    Cunia;
+	false ->
+	    erlang:error({no_test, Tag})
+    end.
+
 choose_pitch({Min, Max}) ->
     case Min =/= Max of
 	true ->
@@ -167,7 +184,7 @@ choose_pitch({Min, Max}) ->
 	    Min
     end.
     
-play({Cunia, _Tag}, Pitch) ->
+play(Cunia, Pitch) ->
     erlcunia.midi.player:play(transpose(Cunia, Pitch)).
 
 transpose([], _Pitch) ->

@@ -10,7 +10,8 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, new_test/0, test_answer/1, get_answer/0]).
+-export([start_link/0, new_test/0, test_answer/1, get_answer/0, settings/2,
+	 get_settings/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -18,8 +19,11 @@
 
 -import(gen_server).
 -import(erlcunia.lesson).
+-import(erlcunia.util).
 
 -record(state, {
+	  repeat_test = true,
+	  play_wrong = true,
 	  right_answer = undefined
 	 }).
 
@@ -41,6 +45,13 @@ test_answer(Answer) ->
 
 get_answer() ->
     call(get_answer).
+
+settings(RepeatTest, RepeatWrong) ->
+    call({settings, RepeatTest, RepeatWrong}).
+
+%% Return {RepeatTest, RepeatWrong} (both boolean)
+get_settings() ->
+    call(get_settings).
 
 call(Message) ->
     gen_server:call(?MODULE, Message, infinity).
@@ -69,14 +80,25 @@ init([]) ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 handle_call(new_test, _From, State) ->
-    {Answer, _Pitch} = player:play(),
+    {Answer, _Pitch} = player:play_random(),
     {reply, ok, State#state{right_answer = Answer}};
 
 handle_call({test_answer, Answer}, _From, State) ->
-    {reply, Answer == State#state.right_answer, State};
+    Response = test_answer(Answer, State),
+    {reply, Response, State};
 
 handle_call(get_answer, _From, State) ->
     {reply, State#state.right_answer, State};
+
+handle_call({settings, RepeatTest, PlayWrong}, _From, State) ->
+    util:check_boolean(RepeatTest),
+    util:check_boolean(PlayWrong),
+    {reply, ok, State#state{repeat_test = RepeatTest,
+			    play_wrong = PlayWrong}};
+
+handle_call(get_settings, _From, State) ->
+    #state{repeat_test = RepeatTest, play_wrong = PlayWrong} = State,
+    {reply, {RepeatTest, PlayWrong}, State};
     
 handle_call(_Request, _From, State) ->
     {reply, {error, bad_call} , State}.
@@ -119,3 +141,23 @@ code_change(_OldVsn, State, _Extra) ->
 %%--------------------------------------------------------------------
 %%% Internal functions
 %%--------------------------------------------------------------------
+
+test_answer(Answer, State) ->
+    case Answer == State#state.right_answer of
+	true ->
+	    true;
+	false ->
+	    repeat_answer(Answer, State),
+	    repeat_question(State),
+	    false
+    end.
+
+repeat_answer(Answer, #state{play_wrong = true}) ->
+    {_Test, Pitch} = player:get_last_question(),
+    player:play_test(Answer, Pitch);
+repeat_answer(_,_) ->
+    ok.
+
+repeat_question(#state{repeat_test = true}) ->
+    {Test, Pitch} = player:get_last_question(),
+    player:play_test(Test, Pitch).
