@@ -10,15 +10,18 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/0, new_test/0, test_answer/1, get_answer/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
 -import(gen_server).
+-import(erlcunia.lesson).
 
--record(state, {}).
+-record(state, {
+	  right_answer = undefined
+	 }).
 
 %%====================================================================
 %% API
@@ -29,6 +32,18 @@
 %%--------------------------------------------------------------------
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+new_test() ->
+    call(new_test).
+
+test_answer(Answer) ->
+    call({test_answer, Answer}).
+
+get_answer() ->
+    call(get_answer).
+
+call(Message) ->
+    gen_server:call(?MODULE, Message, infinity).
 
 %%====================================================================
 %% gen_server callbacks
@@ -53,9 +68,18 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
+handle_call(new_test, _From, State) ->
+    {Answer, _Pitch} = player:play(),
+    {reply, ok, State#state{right_answer = Answer}};
+
+handle_call({test_answer, Answer}, _From, State) ->
+    {reply, Answer == State#state.right_answer, State};
+
+handle_call(get_answer, _From, State) ->
+    {reply, State#state.right_answer, State};
+    
 handle_call(_Request, _From, State) ->
-    Reply = ok,
-    {reply, Reply, State}.
+    {reply, {error, bad_call} , State}.
 
 %%--------------------------------------------------------------------
 %% Function: handle_cast(Msg, State) -> {noreply, State} |
