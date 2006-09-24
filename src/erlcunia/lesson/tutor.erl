@@ -147,17 +147,19 @@ test_answer(Answer, State) ->
 	true ->
 	    true;
 	false ->
-	    repeat_answer(Answer, State),
-	    repeat_question(State),
+	    repeat(Answer, State),
 	    false
     end.
 
-repeat_answer(Answer, #state{play_wrong = true}) ->
-    {_Test, Pitch} = player:get_last_question(),
-    player:play_test(Answer, Pitch);
-repeat_answer(_,_) ->
-    ok.
-
-repeat_question(#state{repeat_test = true}) ->
+repeat(Answer, State) ->
     {Test, Pitch} = player:get_last_question(),
-    player:play_test(Test, Pitch).
+    case {State#state.play_wrong, State#state.repeat_test} of
+	{true, true} ->
+	    player:play_tests([Answer, Test], [{rest, 2}], Pitch);
+	{true, false} ->
+	    player:play_test(Answer, Pitch);
+	{false, true} ->
+	    player:play_test(Test, Pitch);
+	{false, false} ->
+	    ok
+    end.

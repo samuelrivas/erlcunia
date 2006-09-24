@@ -17,7 +17,7 @@
 
 %% API
 -export([start_link/0, load_lesson/1, play_random/0, play_test/2, get_range/0,
-	 set_range/2, get_last_question/0]).
+	 set_range/2, get_last_question/0, play_tests/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -48,6 +48,11 @@ play_random() ->
 
 play_test(Tag, Pitch) ->
     call({play, Tag, Pitch}).
+
+%% Tests = [{Tag, Pitch}]
+%% Divider = cunia()
+play_tests(Tests, Divider, Pitch) ->
+    call({play, Tests, Divider, Pitch}).
 
 get_range() ->
     call(get_range).
@@ -100,6 +105,11 @@ handle_call(play, _From, State) ->
 
 handle_call({play, Tag, Pitch}, _From, State) ->
     Cunia = get_cunia(State#state.lesson, Tag),
+    play(Cunia, Pitch),
+    {reply, ok, State};
+
+handle_call({play, Tests, Divider, Pitch}, _From, State) ->
+    Cunia = join_tests(Tests, Divider, State#state.lesson),
     play(Cunia, Pitch),
     {reply, ok, State};
 
@@ -168,7 +178,9 @@ choose_test(Lesson) ->
     lists:nth(Rand, Questions).
 
 get_cunia(Lesson, Tag) ->
-    Questions = util:find(questions, Lesson),
+    find_tag(Tag, util:find(questions, Lesson)).
+
+find_tag(Tag, Questions) ->
     case lists:keysearch(Tag, 2, Questions) of
 	{value, {Cunia, Tag}} ->
 	    Cunia;
@@ -196,3 +208,10 @@ transpose_event({notes, Notes, Length}, Pitch) ->
     {notes, [Note + Pitch || Note <- Notes], Length};
 transpose_event(Event, _Pitch) ->
     Event.
+
+join_tests([], _Divider, _Lesson) ->
+    [];
+join_tests([First | Tests], Divider, Lesson) ->
+    Questions = util:find(questions, Lesson),
+    lists:flatten([find_tag(First, Questions)
+		   | [[Divider, find_tag(Tag, Questions)] || Tag <- Tests]]).
