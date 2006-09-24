@@ -9,7 +9,7 @@
 
    {[{notes, [0], 4}, {notes, [1], 4}, {notes, [3], 4}, {notes, [5], 4},
      {notes, [7], 4}, {notes, [8], 4}, {notes, [10], 4}, {notes, [12], 4}], 
-     prhygian},
+     phrygian},
 
    {[{notes, [0], 4}, {notes, [2], 4}, {notes, [4], 4}, {notes, [6], 4},
      {notes, [7], 4}, {notes, [9], 4}, {notes, [11], 4}, {notes, [12], 4}], 
