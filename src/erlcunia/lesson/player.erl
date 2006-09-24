@@ -17,7 +17,7 @@
 
 %% API
 -export([start_link/0, load_lesson/1, play_random/0, play_test/2, get_range/0,
-	 set_range/2, get_last_question/0, play_tests/3]).
+	 set_range/2, get_last_question/0, play_tests/3, get_answers/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -41,6 +41,9 @@ start_link() ->
 
 load_lesson(File) ->
     call({load_lesson, File}).
+
+get_answers() ->
+    call(get_answers).
 
 %% Returns the tag of the test being played
 play_random() ->
@@ -121,6 +124,9 @@ handle_call({set_range, Range}, _From, State) ->
 
 handle_call(get_last_question, _From, State) ->
     {reply, State#state.last_question, State};
+
+handle_call(get_answers, _From, State) ->
+    {reply, get_answers(State#state.lesson), State};
     
 handle_call(_Request, _From, State) ->
     {reply, {error, wrong_call}, State}.
@@ -215,3 +221,6 @@ join_tests([First | Tests], Divider, Lesson) ->
     Questions = util:find(questions, Lesson),
     lists:flatten([find_tag(First, Questions)
 		   | [[Divider, find_tag(Tag, Questions)] || Tag <- Tests]]).
+
+get_answers(Lesson) ->
+    [Tag || {_Cunia, Tag} <- util:find(questions, Lesson)].
