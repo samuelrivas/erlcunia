@@ -1,0 +1,11 @@
+{tests,
+  [{[{notes, [0], 4}, {notes, [2], 4}, {notes, [4], 4}, {notes, [6], 4}],
+     lydian},
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [4], 4}, {notes, [5], 4}],
+     ionian},
+   {[{notes, [0], 4}, {notes, [2], 4}, {notes, [3], 4}, {notes, [5], 4}],
+      dorian},
+   {[{notes, [0], 4}, {notes, [1], 4}, {notes, [3], 4}, {notes, [5], 4}],
+     phrygian},
+   {[{notes, [0], 4}, {notes, [1], 4}, {notes, [4], 4}, {notes, [5], 4}],
+     harmonic}]}.
