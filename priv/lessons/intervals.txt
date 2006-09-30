@@ -1,4 +1,4 @@
-{questions, 
+{tests, 
   [{[{notes, [0], 2}, {notes, [1], 2}], minor_second},
    {[{notes, [0], 2}, {notes, [2], 2}], major_second},
    {[{notes, [0], 2}, {notes, [3], 2}], minor_third},

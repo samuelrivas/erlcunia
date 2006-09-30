@@ -9,24 +9,20 @@
 
 -import(gen_server).
 -import(file).
--import(random).
 -import(lists).
 -import(erlcunia.util).
 
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, load_lesson/1, play_random/0, play_test/2, get_range/0,
-	 set_range/2, get_last_question/0, play_tests/3, get_answers/0]).
+-export([start_link/0, load_lesson/1, play/2, play/3, get_tests/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
 -record(state, {
-	  range = {36, 72},
-	  lesson = undefined,
-	  last_question = undefined	% {Test, Pitch}
+	  lesson = undefined
 	 }).
 
 %%====================================================================
@@ -42,29 +38,16 @@ start_link() ->
 load_lesson(File) ->
     call({load_lesson, File}).
 
-get_answers() ->
-    call(get_answers).
+get_tests() ->
+    call(get_tests).
 
-%% Returns the tag of the test being played
-play_random() ->
-    call(play).
+play(Test, Tone) ->
+    call({play, Test, Tone}).
 
-play_test(Tag, Pitch) ->
-    call({play, Tag, Pitch}).
-
-%% Tests = [{Tag, Pitch}]
+%% Tests = [{Test, Tone}]
 %% Divider = cunia()
-play_tests(Tests, Divider, Pitch) ->
-    call({play, Tests, Divider, Pitch}).
-
-get_range() ->
-    call(get_range).
-
-set_range(Min, Max) ->
-    call({set_range, {Min, Max}}).
-
-get_last_question() ->
-    call(get_last_question).
+play(Tests, Divider, Tone) ->
+    call({play, Tests, Divider, Tone}).
 
 call(Msg) ->
     gen_server:call(?MODULE, Msg, infinity).
@@ -81,9 +64,6 @@ call(Msg) ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-    %% Seed the pseudorandom number generator
-    {A, B, C} = erlang:now(),
-    random:seed(A, B, C),
     {ok, #state{}}.
 
 %%--------------------------------------------------------------------
@@ -98,36 +78,19 @@ init([]) ->
 handle_call({load_lesson, File}, _From, State) ->
     {reply, ok, State#state{lesson = load_lesson_file(File)}};
 
-handle_call(play, _From, State) when State#state.lesson == undefined ->
-    erlang:error(no_lesson);
-handle_call(play, _From, State) ->
-    {Cunia, Tag} = choose_test(State#state.lesson),
-    Pitch = choose_pitch(State#state.range),
-    play(Cunia, Pitch),
-    {reply, {Tag, Pitch}, State#state{last_question = {Tag, Pitch}}};
-
-handle_call({play, Tag, Pitch}, _From, State) ->
-    Cunia = get_cunia(State#state.lesson, Tag),
-    play(Cunia, Pitch),
+handle_call({play, Test, Tone}, _From, State) ->
+    Cunia = get_cunia(State#state.lesson, Test),
+    play_cunia(Cunia, Tone),
     {reply, ok, State};
 
-handle_call({play, Tests, Divider, Pitch}, _From, State) ->
+handle_call({play, Tests, Divider, Tone}, _From, State) ->
     Cunia = join_tests(Tests, Divider, State#state.lesson),
-    play(Cunia, Pitch),
+    play_cunia(Cunia, Tone),
     {reply, ok, State};
 
-handle_call(get_range, _From, State) ->
-    {reply, State#state.range, State};
+handle_call(get_tests, _From, State) ->
+    {reply, get_tests(State#state.lesson), State};
 
-handle_call({set_range, Range}, _From, State) ->
-    {reply, ok, State#state{range = Range}};
-
-handle_call(get_last_question, _From, State) ->
-    {reply, State#state.last_question, State};
-
-handle_call(get_answers, _From, State) ->
-    {reply, get_answers(State#state.lesson), State};
-    
 handle_call(_Request, _From, State) ->
     {reply, {error, wrong_call}, State}.
 
@@ -178,49 +141,38 @@ load_lesson_file(File) ->
 	    erlang:error(file:format_error(Reason))
     end.
 
-choose_test(Lesson) ->
-    Questions = util:find(questions, Lesson),
-    Rand = random:uniform(length(Questions)),
-    lists:nth(Rand, Questions).
+get_cunia(Lesson, Test) ->
+    find_test(Test, util:find(tests, Lesson)).
 
-get_cunia(Lesson, Tag) ->
-    find_tag(Tag, util:find(questions, Lesson)).
-
-find_tag(Tag, Questions) ->
-    case lists:keysearch(Tag, 2, Questions) of
-	{value, {Cunia, Tag}} ->
+find_test(Test, Tests) ->
+    case lists:keysearch(Test, 2, Tests) of
+	{value, {Cunia, Test}} ->
 	    Cunia;
 	false ->
-	    erlang:error({no_test, Tag})
+	    erlang:error({no_test, Test})
     end.
 
-choose_pitch({Min, Max}) ->
-    case Min =/= Max of
-	true ->
-	    Min + random:uniform(Max - Min + 1) - 1;
-	false ->
-	    Min
-    end.
-    
-play(Cunia, Pitch) ->
-    erlcunia.midi.player:play(transpose(Cunia, Pitch)).
+play_cunia(Cunia, Tone) ->
+    erlcunia.midi.player:play(transpose(Cunia, Tone)).
 
-transpose([], _Pitch) ->
+transpose([], _Tone) ->
     [];
-transpose([Event | T], Pitch) ->
-    [transpose_event(Event, Pitch) | transpose(T, Pitch)].
+transpose([Event | T], Tone) ->
+    [transpose_event(Event, Tone) | transpose(T, Tone)].
 
-transpose_event({notes, Notes, Length}, Pitch) ->
-    {notes, [Note + Pitch || Note <- Notes], Length};
-transpose_event(Event, _Pitch) ->
+transpose_event({notes, Notes, Length}, Tone) ->
+    {notes, [Note + Tone || Note <- Notes], Length};
+transpose_event(Event, _Tone) ->
     Event.
 
-join_tests([], _Divider, _Lesson) ->
-    [];
-join_tests([First | Tests], Divider, Lesson) ->
-    Questions = util:find(questions, Lesson),
-    lists:flatten([find_tag(First, Questions)
-		   | [[Divider, find_tag(Tag, Questions)] || Tag <- Tests]]).
+join_tests(Tests, Divider, Lesson) ->
+    join_tests2(Tests, Divider, util:find(tests, Lesson)).
 
-get_answers(Lesson) ->
-    [Tag || {_Cunia, Tag} <- util:find(questions, Lesson)].
+join_tests2([], _Divider, _Tests) ->
+    [];
+join_tests2([First | T], Divider, Tests) ->
+    lists:flatten([find_test(First, Tests)
+		   | [[Divider, find_test(Test, Tests)] || Test <- T]]).
+
+get_tests(Lesson) ->
+    [Test || {_Cunia, Test} <- util:find(tests, Lesson)].

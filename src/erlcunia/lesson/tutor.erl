@@ -11,20 +11,25 @@
 
 %% API
 -export([start_link/0, new_test/0, test_answer/1, get_answer/0, settings/2,
-	 get_settings/0]).
+	 get_settings/0, load_lesson/1, get_range/0, set_range/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
 -import(gen_server).
+-import(random).
+-import(lists).
 -import(erlcunia.lesson).
 -import(erlcunia.util).
 
 -record(state, {
 	  repeat_test = true,
 	  play_wrong = true,
-	  right_answer = undefined
+	  right_answer = undefined,
+	  all_tests = [],
+	  selected_tests = [],
+	  range = {36, 72}
 	 }).
 
 %%====================================================================
@@ -37,6 +42,9 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+load_lesson(File) ->
+    call({load_lesson, File}).
+
 new_test() ->
     call(new_test).
 
@@ -45,6 +53,12 @@ test_answer(Answer) ->
 
 get_answer() ->
     call(get_answer).
+
+get_range() ->
+    call(get_range).
+
+set_range(Min, Max) ->
+    call({set_range, {Min, Max}}).
 
 settings(RepeatTest, RepeatWrong) ->
     call({settings, RepeatTest, RepeatWrong}).
@@ -68,6 +82,9 @@ call(Message) ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
+    %% Seed the pseudorandom number generator
+    {A, B, C} = erlang:now(),
+    random:seed(A, B, C),
     {ok, #state{}}.
 
 %%--------------------------------------------------------------------
@@ -79,9 +96,16 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
+handle_call({load_lesson, File}, _From, State) ->
+    player:load_lesson(File),
+    Tests = player:get_tests(), 
+    {reply, ok, State#state{all_tests = Tests, selected_tests = Tests}};
+
 handle_call(new_test, _From, State) ->
-    {Answer, _Pitch} = player:play_random(),
-    {reply, ok, State#state{right_answer = Answer}};
+    Test = random_test(State#state.selected_tests),
+    Tone = choose_tone(State#state.range),
+    player:play(Test, Tone),
+    {reply, ok, State#state{right_answer = {Test, Tone}}};
 
 handle_call({test_answer, Answer}, _From, State) ->
     Response = test_answer(Answer, State),
@@ -100,6 +124,12 @@ handle_call(get_settings, _From, State) ->
     #state{repeat_test = RepeatTest, play_wrong = PlayWrong} = State,
     {reply, {RepeatTest, PlayWrong}, State};
     
+handle_call(get_range, _From, State) ->
+    {reply, State#state.range, State};
+
+handle_call({set_range, Range}, _From, State) ->
+    {reply, ok, State#state{range = Range}};
+
 handle_call(_Request, _From, State) ->
     {reply, {error, bad_call} , State}.
 
@@ -143,23 +173,36 @@ code_change(_OldVsn, State, _Extra) ->
 %%--------------------------------------------------------------------
 
 test_answer(Answer, State) ->
-    case Answer == State#state.right_answer of
-	true ->
+    case State#state.right_answer of
+	{Answer, _Tone} ->
 	    true;
-	false ->
+	_ ->
 	    repeat(Answer, State),
 	    false
     end.
 
 repeat(Answer, State) ->
-    {Test, Pitch} = player:get_last_question(),
+    {Right, Tone} = State#state.right_answer,
     case {State#state.play_wrong, State#state.repeat_test} of
 	{true, true} ->
-	    player:play_tests([Answer, Test], [{rest, 2}], Pitch);
+	    player:play([Answer, Right], [{rest, 2}], Tone);
 	{true, false} ->
-	    player:play_test(Answer, Pitch);
+	    player:play(Answer, Tone);
 	{false, true} ->
-	    player:play_test(Test, Pitch);
+	    player:play(Right, Tone);
 	{false, false} ->
 	    ok
     end.
+
+random_test(Tests) ->
+    Rand = random:uniform(length(Tests)),
+    lists:nth(Rand, Tests).
+
+choose_tone({Min, Max}) ->
+    case Min =/= Max of
+	true ->
+	    Min + random:uniform(Max - Min + 1) - 1;
+	false ->
+	    Min
+    end.
+    
