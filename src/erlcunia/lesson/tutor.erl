@@ -12,7 +12,8 @@
 %% API
 -export([start_link/0, new_test/0, test_answer/1, get_answer/0, settings/2,
 	 get_settings/0, load_lesson/1, get_range/0, set_range/2,
-	 repeat_test/0, repeat_answer/0]).
+	 repeat_test/0, repeat_answer/0, switch_tests/1, get_all_tests/0,
+	 get_selected_tests/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -67,6 +68,16 @@ get_range() ->
 
 set_range(Min, Max) ->
     call({set_range, {Min, Max}}).
+
+%% BoolMap = [bool()]
+switch_tests(BoolMap) ->
+    call({switch_tests, BoolMap}).
+
+get_all_tests() ->
+    call(get_all_tests).
+
+get_selected_tests() ->
+    call(get_selected_tests).
 
 settings(RepeatTest, RepeatWrong) ->
     call({settings, RepeatTest, RepeatWrong}).
@@ -148,6 +159,16 @@ handle_call(get_range, _From, State) ->
 handle_call({set_range, Range}, _From, State) ->
     {reply, ok, State#state{range = Range}};
 
+handle_call(get_all_tests, _From, State) ->
+    {reply, State#state.all_tests, State};
+
+handle_call(get_selected_tests, _From, State) ->
+    {reply, State#state.selected_tests, State};
+
+handle_call({switch_tests, BoolMap}, _From, State) ->
+    Selected = select_tests(State#state.all_tests, BoolMap),
+    {reply, ok, State#state{selected_tests = Selected}};
+
 handle_call(_Request, _From, State) ->
     {reply, {error, bad_call} , State}.
 
@@ -224,3 +245,5 @@ choose_tone({Min, Max}) ->
 	    Min
     end.
     
+select_tests(Tests, BoolMap) ->
+    [Test || {Test, true} <- lists:zip(Tests, BoolMap)].
