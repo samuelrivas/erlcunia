@@ -1,3 +1,6 @@
+1 - Bad answer reply should be transposed in some cases. E.g. a minor
+    triad in place of a major triad should replay one tone higher so the
+    fifths (highest tone) match.
 1 - Unify names (questions, tests, tags, pitches, tones, ...)
 1 - Robust lesson player. Don't die on common errors (bad_file, bad_tag, ...)
 1 - Make midi player configurable
