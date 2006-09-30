@@ -11,7 +11,8 @@
 
 %% API
 -export([start_link/0, new_test/0, test_answer/1, get_answer/0, settings/2,
-	 get_settings/0, load_lesson/1, get_range/0, set_range/2]).
+	 get_settings/0, load_lesson/1, get_range/0, set_range/2,
+	 repeat_test/0, repeat_answer/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -27,6 +28,7 @@
 	  repeat_test = true,
 	  play_wrong = true,
 	  right_answer = undefined,
+	  last_answer = undefined,
 	  all_tests = [],
 	  selected_tests = [],
 	  range = {36, 72}
@@ -47,6 +49,12 @@ load_lesson(File) ->
 
 new_test() ->
     call(new_test).
+
+repeat_test() ->
+    call(repeat_test).
+
+repeat_answer() ->
+    call(repeat_answer).
 
 test_answer(Answer) ->
     call({test_answer, Answer}).
@@ -107,9 +115,19 @@ handle_call(new_test, _From, State) ->
     player:play(Test, Tone),
     {reply, ok, State#state{right_answer = {Test, Tone}}};
 
+handle_call(repeat_test, _From, State) ->
+    {Test, Tone} = State#state.right_answer,
+    player:play(Test, Tone),
+    {reply, ok, State};
+
+handle_call(repeat_answer, _From, State) ->
+    {_Test, Tone} = State#state.right_answer,
+    player:play(State#state.last_answer, Tone),
+    {reply, ok, State};
+
 handle_call({test_answer, Answer}, _From, State) ->
     Response = test_answer(Answer, State),
-    {reply, Response, State};
+    {reply, Response, State#state{last_answer = Answer}};
 
 handle_call(get_answer, _From, State) ->
     {reply, State#state.right_answer, State};
