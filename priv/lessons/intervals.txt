@@ -4,7 +4,7 @@
    {[{notes, [0], 2}, {notes, [3], 2}], minor_third},
    {[{notes, [0], 2}, {notes, [4], 2}], major_third},
    {[{notes, [0], 2}, {notes, [5], 2}], fourth},
-   {[{notes, [0], 2}, {notes, [6], 2}], diminshed_fifth},
+   {[{notes, [0], 2}, {notes, [6], 2}], diminished_fifth},
    {[{notes, [0], 2}, {notes, [7], 2}], fifth},
    {[{notes, [0], 2}, {notes, [8], 2}], minor_sixth},
    {[{notes, [0], 2}, {notes, [9], 2}], major_sixth},
