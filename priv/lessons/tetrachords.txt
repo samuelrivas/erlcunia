@@ -8,4 +8,14 @@
    {[{notes, [0], 4}, {notes, [1], 4}, {notes, [3], 4}, {notes, [5], 4}],
      phrygian},
    {[{notes, [0], 4}, {notes, [1], 4}, {notes, [4], 4}, {notes, [5], 4}],
-     harmonic}]}.
+     harmonic},
+   {[{notes, [6], 4}, {notes, [4], 4}, {notes, [2], 4}, {notes, [0], 4}],
+     lydian_backward},
+   {[{notes, [5], 4}, {notes, [4], 4}, {notes, [2], 4}, {notes, [0], 4}],
+     ionian_backward},
+   {[{notes, [5], 4}, {notes, [3], 4}, {notes, [2], 4}, {notes, [0], 4}],
+      dorian_backward},
+   {[{notes, [5], 4}, {notes, [3], 4}, {notes, [1], 4}, {notes, [0], 4}],
+     phrygian_backward},
+   {[{notes, [5], 4}, {notes, [4], 4}, {notes, [1], 4}, {notes, [0], 4}],
+     harmonic_backward}]}.

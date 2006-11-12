@@ -1,0 +1,6 @@
+{tests,
+  [{[{notes, [0, 4, 7, 11], 2}], major},
+   {[{notes, [0, 4, 7, 10], 2}], seventh},
+   {[{notes, [0, 3, 7, 10], 2}], minor},
+   {[{notes, [0, 3, 6, 10], 2}], half_diminished},
+   {[{notes, [0, 5, 7, 10], 2}], suspended}]}.
