@@ -25,6 +25,7 @@
 -import(erlcunia.lesson).
 -import(erlcunia.util).
 
+%% Answers are like {Tag, Tone}, Tag = atom(), Tone = integer()
 -record(state, {
 	  repeat_test = true,
 	  play_wrong = true,
@@ -141,7 +142,7 @@ handle_call({test_answer, Answer}, _From, State) ->
     {reply, Response, State#state{last_answer = Answer}};
 
 handle_call(get_answer, _From, State) ->
-    {reply, State#state.right_answer, State};
+    {reply, translate_tone(State#state.right_answer), State};
 
 handle_call({settings, RepeatTest, PlayWrong}, _From, State) ->
     util:check_boolean(RepeatTest),
@@ -247,3 +248,38 @@ choose_tone({Min, Max}) ->
     
 select_tests(Tests, BoolMap) ->
     [Test || {Test, true} <- lists:zip(Tests, BoolMap)].
+
+translate_tone({Test, Tone}) ->
+    Octave = case Tone < 24 of
+		 true ->
+		     0;
+		 false ->
+		     1 + (Tone - 24) div 12
+	     end,
+    Note = note2string((Tone - 21) rem 12),
+    {Test, Note ++ integer_to_list(Octave)}.
+
+note2string(0) ->
+    "A";
+note2string(1) ->
+    "A#";
+note2string(2) ->
+    "B";
+note2string(3) ->
+    "C";
+note2string(4) ->
+    "Db";
+note2string(5) ->
+    "D";
+note2string(6) ->
+    "Eb";
+note2string(7) ->
+    "E";
+note2string(8) ->
+    "F";
+note2string(9) ->
+    "F#";
+note2string(10) ->
+    "G";
+note2string(11) ->
+    "Ab".
