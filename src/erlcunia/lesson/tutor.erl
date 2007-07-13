@@ -214,8 +214,8 @@ code_change(_OldVsn, State, _Extra) ->
 
 test_answer(Answer, State) ->
     case State#state.right_answer of
-	{Answer, _Tone} ->
-	    true;
+	{Answer, Tone} ->
+	    {true, tone2string(Tone)};
 	_ ->
 	    repeat(Answer, State),
 	    false
@@ -250,14 +250,16 @@ select_tests(Tests, BoolMap) ->
     [Test || {Test, true} <- lists:zip(Tests, BoolMap)].
 
 translate_tone({Test, Tone}) ->
+    {Test, tone2string(Tone)}.
+
+tone2string(Tone) ->
     Octave = case Tone < 24 of
 		 true ->
 		     0;
 		 false ->
 		     1 + (Tone - 24) div 12
 	     end,
-    Note = note2string((Tone - 21) rem 12),
-    {Test, Note ++ integer_to_list(Octave)}.
+    note2string((Tone - 21) rem 12) ++ integer_to_list(Octave).
 
 note2string(0) ->
     "A";
