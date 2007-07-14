@@ -58,6 +58,7 @@ repeat_test() ->
 repeat_answer() ->
     call(repeat_answer).
 
+%% Returns true | false | bad_test
 test_answer(Answer) ->
     call({test_answer, Answer}).
 
@@ -217,8 +218,13 @@ test_answer(Answer, State) ->
 	{Answer, Tone} ->
 	    {true, tone2string(Tone)};
 	_ ->
-	    repeat(Answer, State),
-	    false
+	    case lists:member(Answer, player:get_tests()) of
+		true ->
+		    repeat(Answer, State),
+		    false;
+		false ->
+		    bad_test
+	    end
     end.
 
 repeat(Answer, State) ->
