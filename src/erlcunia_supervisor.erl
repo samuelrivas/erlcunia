@@ -5,7 +5,7 @@
 %%%
 %%% Created : 23 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(erlcunia.supervisor).
+-module(erlcunia_supervisor).
 
 -behaviour(supervisor).
 
@@ -14,9 +14,6 @@
 
 %% Supervisor callbacks
 -export([init/1]).
-
--import(erlcunia).
--import(supervisor).
 
 -define(SERVER, ?MODULE).
 
