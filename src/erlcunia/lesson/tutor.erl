@@ -119,7 +119,7 @@ init([]) ->
 %%--------------------------------------------------------------------
 handle_call({load_lesson, File}, _From, State) ->
     player:load_lesson(File),
-    Tests = player:get_tests(), 
+    Tests = player:get_tests(),
     {reply, ok, State#state{all_tests = Tests, selected_tests = Tests}};
 
 handle_call(new_test, _From, State) ->
@@ -154,7 +154,7 @@ handle_call({settings, RepeatTest, PlayWrong}, _From, State) ->
 handle_call(get_settings, _From, State) ->
     #state{repeat_test = RepeatTest, play_wrong = PlayWrong} = State,
     {reply, {RepeatTest, PlayWrong}, State};
-    
+
 handle_call(get_range, _From, State) ->
     {reply, State#state.range, State};
 
@@ -251,7 +251,7 @@ choose_tone({Min, Max}) ->
 	false ->
 	    Min
     end.
-    
+
 select_tests(Tests, BoolMap) ->
     [Test || {Test, true} <- lists:zip(Tests, BoolMap)].
 
