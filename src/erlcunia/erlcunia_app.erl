@@ -5,7 +5,7 @@
 %%%
 %%% Created : 23 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(erlcunia.erlcunia_app).
+-module(erlcunia_app).
 
 -behaviour(application).
 
@@ -26,7 +26,7 @@
 %% top supervisor of the tree.
 %%--------------------------------------------------------------------
 start(_Type, _StartArgs) ->
-    erlcunia.supervisor:start_link().
+    erlcunia_supervisor:start_link().
 
 %%--------------------------------------------------------------------
 %% Function: stop(State) -> void()

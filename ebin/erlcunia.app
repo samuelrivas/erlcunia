@@ -5,4 +5,4 @@
 	 {registered, []},
 	 {applications, [kernel, stdlib]},
 	 {env, []},
-	 {mod, {'erlcunia.erlcunia_app',[]}}]}.
+	 {mod, {'erlcunia_app',[]}}]}.
