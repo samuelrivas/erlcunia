@@ -1,3 +1,41 @@
+Compiling
+---------
+
+cd src
+erl -make
+
+Running
+-------
+
+You need timidity installed in /usr/bin/timidity. If you want to change that
+location, just edit the midi/player.erl file and recompile
+
+To run erlcunia, evaluate next functions in the erlang shell:
+
+application:start(erlcunia).
+erlcunia.lesson.tutor:load_lesson("<path_to_erlcunia>/priv/lessons/triads.txt").
+erlcunia.lesson.tutor:new_test().
+
+If everything worked you should hear a grand piano playing a triad. Repeating
+the last command will get you more different triads.
+
+To see the possible answers:
+
+erlcunia.lesson.tutor:get_all_tests().
+
+To test an answer:
+
+erlcunia.lesson.tutor:test_answer(major).
+
+If you fail, you'll hear your choice compared to the test.
+
+To hear the test again:
+
+erlcunia.lesson.tutor:repeat_test().
+
+There are various undocumented ways to customize the tutor, just read the code
+or wait until I decide to document them ;)
+
 Cunia Notation
 --------------
 
@@ -42,7 +80,7 @@ where:
 Lesson format
 -------------
 
-  One lesson is basically a list of relative cunias (first not is 0) paired with a tag to identify
+  One lesson is basically a list of relative cunias (first note is 0) paired with a tag to identify
 each of them:
 
   Lesson = [{questions, [Question]}]
