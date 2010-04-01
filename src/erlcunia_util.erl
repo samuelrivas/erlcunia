@@ -5,7 +5,7 @@
 %%%
 %%% Created : 16 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(util).
+-module(erlcunia_util).
 
 -export([find/2, check_boolean/1]).
 

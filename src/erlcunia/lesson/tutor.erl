@@ -23,7 +23,7 @@
 -import(random).
 -import(lists).
 -import(erlcunia.lesson).
--import(erlcunia.util).
+-import(erlcunia_util).
 
 %% Answers are like {Tag, Tone}, Tag = atom(), Tone = integer()
 -record(state, {

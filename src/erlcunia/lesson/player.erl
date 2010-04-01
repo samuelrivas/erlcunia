@@ -10,7 +10,7 @@
 -import(gen_server).
 -import(file).
 -import(lists).
--import(erlcunia.util).
+-import(erlcunia_util).
 
 -behaviour(gen_server).
 
@@ -142,7 +142,7 @@ load_lesson_file(File) ->
     end.
 
 get_cunia(Lesson, Test) ->
-    find_test(Test, util:find(tests, Lesson)).
+    find_test(Test, erlcunia_util:find(tests, Lesson)).
 
 find_test(Test, Tests) ->
     case lists:keysearch(Test, 2, Tests) of
@@ -166,7 +166,7 @@ transpose_event(Event, _Tone) ->
     Event.
 
 join_tests(Tests, Divider, Lesson) ->
-    join_tests2(Tests, Divider, util:find(tests, Lesson)).
+    join_tests2(Tests, Divider, erlcunia_util:find(tests, Lesson)).
 
 join_tests2([], _Divider, _Tests) ->
     [];
@@ -175,4 +175,4 @@ join_tests2([First | T], Divider, Tests) ->
 		   | [[Divider, find_test(Test, Tests)] || Test <- T]]).
 
 get_tests(Lesson) ->
-    [Test || {_Cunia, Test} <- util:find(tests, Lesson)].
+    [Test || {_Cunia, Test} <- erlcunia_util:find(tests, Lesson)].
