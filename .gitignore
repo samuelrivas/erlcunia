@@ -1,0 +1,3 @@
+ebin/erlcunia/*.beam
+ebin/erlcunia/lesson/*.beam
+ebin/erlcunia/midi/*.beam
