@@ -148,7 +148,7 @@ find_test(Test, Tests) ->
     end.
 
 play_cunia(Cunia, Tone) ->
-    erlcunia.midi.player:play(transpose(Cunia, Tone)).
+    erlcunia_midi_player:play(transpose(Cunia, Tone)).
 
 transpose([], _Tone) ->
     [];

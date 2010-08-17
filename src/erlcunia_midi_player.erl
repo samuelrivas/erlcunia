@@ -5,7 +5,7 @@
 %%%
 %%% Created : 25 Jul 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(erlcunia.midi.player).
+-module(erlcunia_midi_player).
 
 -behaviour(gen_server).
 
@@ -16,10 +16,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
--import(erlcunia.midi).
--import(gen_server).
--import(lists).
--import(dict).
+-import(erlcunia.midi.binary_writer).
 
 -record(state, {
 	  header,		% binary()
