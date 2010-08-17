@@ -47,7 +47,7 @@ init([]) ->
 %%====================================================================
 children() ->
     [childspec(X) || X <- ['erlcunia_lesson_player',
-			   'erlcunia.lesson.tutor',
+			   'erlcunia_lesson_tutor',
 			   'erlcunia.midi.player']].
 
 childspec(Name) ->

@@ -5,7 +5,7 @@
 %%%
 %%% Created : 23 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(erlcunia.lesson.tutor).
+-module(erlcunia_lesson_tutor).
 
 -behaviour(gen_server).
 
@@ -18,13 +18,6 @@
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
-
--import(gen_server).
--import(random).
--import(lists).
--import(erlcunia.lesson).
--import(erlcunia_util).
--import(erlcunia_lesson_player).
 
 %% Answers are like {Tag, Tone}, Tag = atom(), Tone = integer()
 -record(state, {
