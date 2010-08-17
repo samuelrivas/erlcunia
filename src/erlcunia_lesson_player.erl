@@ -5,12 +5,7 @@
 %%%
 %%% Created : 16 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(erlcunia.lesson.player).
-
--import(gen_server).
--import(file).
--import(lists).
--import(erlcunia_util).
+-module(erlcunia_lesson_player).
 
 -behaviour(gen_server).
 

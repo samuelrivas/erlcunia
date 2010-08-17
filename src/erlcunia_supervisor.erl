@@ -46,7 +46,7 @@ init([]) ->
 %% Internal functions
 %%====================================================================
 children() ->
-    [childspec(X) || X <- ['erlcunia.lesson.player',
+    [childspec(X) || X <- ['erlcunia_lesson_player',
 			   'erlcunia.lesson.tutor',
 			   'erlcunia.midi.player']].
 

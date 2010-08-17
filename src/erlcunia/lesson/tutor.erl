@@ -24,6 +24,7 @@
 -import(lists).
 -import(erlcunia.lesson).
 -import(erlcunia_util).
+-import(erlcunia_lesson_player).
 
 %% Answers are like {Tag, Tone}, Tag = atom(), Tone = integer()
 -record(state, {
@@ -118,24 +119,24 @@ init([]) ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 handle_call({load_lesson, File}, _From, State) ->
-    player:load_lesson(File),
-    Tests = player:get_tests(),
+    erlcunia_lesson_player:load_lesson(File),
+    Tests = erlcunia_lesson_player:get_tests(),
     {reply, ok, State#state{all_tests = Tests, selected_tests = Tests}};
 
 handle_call(new_test, _From, State) ->
     Test = random_test(State#state.selected_tests),
     Tone = choose_tone(State#state.range),
-    player:play(Test, Tone),
+    erlcunia_lesson_player:play(Test, Tone),
     {reply, ok, State#state{right_answer = {Test, Tone}}};
 
 handle_call(repeat_test, _From, State) ->
     {Test, Tone} = State#state.right_answer,
-    player:play(Test, Tone),
+    erlcunia_lesson_player:play(Test, Tone),
     {reply, ok, State};
 
 handle_call(repeat_answer, _From, State) ->
     {_Test, Tone} = State#state.right_answer,
-    player:play(State#state.last_answer, Tone),
+    erlcunia_lesson_player:play(State#state.last_answer, Tone),
     {reply, ok, State};
 
 handle_call({test_answer, Answer}, _From, State) ->
@@ -218,7 +219,7 @@ test_answer(Answer, State) ->
 	{Answer, Tone} ->
 	    {true, tone2string(Tone)};
 	_ ->
-	    case lists:member(Answer, player:get_tests()) of
+	    case lists:member(Answer, erlcunia_lesson_player:get_tests()) of
 		true ->
 		    repeat(Answer, State),
 		    false;
@@ -231,11 +232,11 @@ repeat(Answer, State) ->
     {Right, Tone} = State#state.right_answer,
     case {State#state.play_wrong, State#state.repeat_test} of
 	{true, true} ->
-	    player:play([Answer, Right], [{rest, 2}], Tone);
+	    erlcunia_lesson_player:play([Answer, Right], [{rest, 2}], Tone);
 	{true, false} ->
-	    player:play(Answer, Tone);
+	    erlcunia_lesson_player:play(Answer, Tone);
 	{false, true} ->
-	    player:play(Right, Tone);
+	    erlcunia_lesson_player:play(Right, Tone);
 	{false, false} ->
 	    ok
     end.
