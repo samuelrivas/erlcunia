@@ -16,8 +16,6 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
--import(erlcunia.midi.binary_writer).
-
 -record(state, {
 	  header,		% binary()
 	  tempo			% integer()
@@ -62,7 +60,7 @@ set_tempo(BeatsPerMinute) ->
 %%--------------------------------------------------------------------
 init([]) ->
     %% Midi file with one track and ?PPQN pulses per quarter note
-    {ok, #state{header = binary_writer:header(0, 1, ?PPQN),
+    {ok, #state{header = erlcunia_midi_binary_writer:header(0, 1, ?PPQN),
 		tempo = 120}}.
 
 %%--------------------------------------------------------------------
@@ -124,9 +122,9 @@ code_change(_OldVsn, State, _Extra) ->
 %%--------------------------------------------------------------------
 play(MidiEvents, #state{header = Header, tempo = Tempo}) ->
     Port = open_port({spawn, ?PLAYER}, [stream, binary, eof]),
-    TrackContent = [binary_writer:tempo(0, Tempo), MidiEvents,
-		    binary_writer:end_of_track()],
-    Track = binary_writer:track(list_to_binary(TrackContent)),
+    TrackContent = [erlcunia_midi_binary_writer:tempo(0, Tempo), MidiEvents,
+		    erlcunia_midi_binary_writer:end_of_track()],
+    Track = erlcunia_midi_binary_writer:track(list_to_binary(TrackContent)),
     port_command(Port, list_to_binary([Header, Track])),
     receive
 	{Port, eof} ->
@@ -194,9 +192,11 @@ events2midi(Events) ->
 events2midi([{Type, Note, Pulse} | T], LastPulse) ->
     Binary = case Type of
 		 note_on ->
-		     binary_writer:note_on(Pulse - LastPulse, 0, Note, 16#7F);
+		     erlcunia_midi_binary_writer:note_on(
+                       Pulse - LastPulse, 0, Note, 16#7F);
 		 note_off ->
-		     binary_writer:note_off(Pulse - LastPulse, 0, Note, 16#7F)
+		     erlcunia_midi_binary_writer:note_off(
+                       Pulse - LastPulse, 0, Note, 16#7F)
 	     end,
     [Binary | events2midi(T, Pulse)];
 events2midi([], _Pulse) ->

@@ -5,11 +5,10 @@
 %%%
 %%% Created :  2 Jul 2006 by Samuel Rivas <samuel@lambdastream.com>
 %%%-------------------------------------------------------------------
--module(erlcunia.midi.binary_writer).
+-module(erlcunia_midi_binary_writer).
 
 -export([header/3, track/1, track_name/1, end_of_track/0, note_off/4,
 	 note_on/4, tempo/2]).
--import(lists).
 
 %% Format = 0 | 1 | 2
 %% Tracks = integer() > 0
