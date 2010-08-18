@@ -52,7 +52,7 @@ vlq(N) when N =< 16#0FFFFFFF ->
 
 vlq_binary(<<0:4, B3:7, B2:7, B1:7, B0:7>>) ->
     vlq_binary(discard_zeroes([B3, B2, B1, B0]), []).
-    
+
 discard_zeroes([X | []]) ->
     [X];
 discard_zeroes([0 | T]) ->
