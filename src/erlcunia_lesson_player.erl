@@ -18,10 +18,10 @@
 %%%-------------------------------------------------------------------
 %%%-------------------------------------------------------------------
 %%% File    : player.erl
-%%% Author  : Samuel Rivas <samuel@lambdastream.com>
+%%% Author  : Samuel Rivas <samuelrivas@gmail.com>
 %%% Description : Erlcunia's lesson player
 %%%
-%%% Created : 16 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
+%%% Created : 16 Sep 2006 by Samuel Rivas <samuelrivas@gmail.com>
 %%%-------------------------------------------------------------------
 -module(erlcunia_lesson_player).
 

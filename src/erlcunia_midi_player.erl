@@ -18,10 +18,10 @@
 %%%-------------------------------------------------------------------
 %%%-------------------------------------------------------------------
 %%% File    : player.erl
-%%% Author  : Samuel Rivas <samuel@lambdastream.com>
+%%% Author  : Samuel Rivas <samuelrivas@gmail.com>
 %%% Description : Plays midi sounds
 %%%
-%%% Created : 25 Jul 2006 by Samuel Rivas <samuel@lambdastream.com>
+%%% Created : 25 Jul 2006 by Samuel Rivas <samuelrivas@gmail.com>
 %%%-------------------------------------------------------------------
 -module(erlcunia_midi_player).
 

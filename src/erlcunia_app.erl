@@ -18,10 +18,10 @@
 %%%-------------------------------------------------------------------
 %%%-------------------------------------------------------------------
 %%% File    : erlcunia.erl
-%%% Author  : Samuel Rivas <samuel@lambdastream.com>
+%%% Author  : Samuel Rivas <samuelrivas@gmail.com>
 %%% Description : Erlcunia application
 %%%
-%%% Created : 23 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
+%%% Created : 23 Sep 2006 by Samuel Rivas <samuelrivas@gmail.com>
 %%%-------------------------------------------------------------------
 -module(erlcunia_app).
 

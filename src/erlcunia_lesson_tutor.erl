@@ -18,10 +18,10 @@
 %%%-------------------------------------------------------------------
 %%%-------------------------------------------------------------------
 %%% File    : tutor.erl
-%%% Author  : Samuel Rivas <samuel@lambdastream.com>
+%%% Author  : Samuel Rivas <samuelrivas@gmail.com>
 %%% Description : The Erlcunia's personal tutor.
 %%%
-%%% Created : 23 Sep 2006 by Samuel Rivas <samuel@lambdastream.com>
+%%% Created : 23 Sep 2006 by Samuel Rivas <samuelrivas@gmail.com>
 %%%-------------------------------------------------------------------
 -module(erlcunia_lesson_tutor).
 

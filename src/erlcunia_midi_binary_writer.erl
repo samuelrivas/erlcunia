@@ -18,10 +18,10 @@
 %%%-------------------------------------------------------------------
 %%%-------------------------------------------------------------------
 %%% File    : binary_writer.erl
-%%% Author  : Samuel Rivas <samuel@lambdastream.com>
+%%% Author  : Samuel Rivas <samuelrivas@gmail.com>
 %%% Description : Creates MIDI binaries
 %%%
-%%% Created :  2 Jul 2006 by Samuel Rivas <samuel@lambdastream.com>
+%%% Created :  2 Jul 2006 by Samuel Rivas <samuelrivas@gmail.com>
 %%%-------------------------------------------------------------------
 -module(erlcunia_midi_binary_writer).
 
