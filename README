@@ -1,40 +1,44 @@
 Compiling
 ---------
 
-cd src
-erl -make
+If you have erlang in your execution path, just typing make should work.
 
 Running
 -------
 
 You need timidity installed in /usr/bin/timidity. If you want to change that
-location, just edit the midi/player.erl file and recompile
+location, just edit the src/erlcunia_midi_player.erl file and recompile.
 
 To run erlcunia, evaluate next functions in the erlang shell:
 
 application:start(erlcunia).
-erlcunia.lesson.tutor:load_lesson("<path_to_erlcunia>/priv/lessons/triads.txt").
-erlcunia.lesson.tutor:new_test().
+erlcunia_lesson_tutor:load_lesson("<path_to_erlcunia>/priv/lessons/triads.txt").
+erlcunia_lesson_tutor:new_test().
 
 If everything worked you should hear a grand piano playing a triad. Repeating
 the last command will get you more different triads.
 
 To see the possible answers:
 
-erlcunia.lesson.tutor:get_all_tests().
+erlcunia_lesson_tutor:get_all_tests().
 
 To test an answer:
 
-erlcunia.lesson.tutor:test_answer(major).
+erlcunia_lesson_tutor:test_answer(major).
 
 If you fail, you'll hear your choice compared to the test.
 
 To hear the test again:
 
-erlcunia.lesson.tutor:repeat_test().
+erlcunia_lesson_tutor:repeat_test().
 
 There are various undocumented ways to customize the tutor, just read the code
 or wait until I decide to document them ;)
+
+Additionally to the triads lesson, at the time of writing these lines, Erlcunia
+also includes a forward church tone scale lesson, an intervals lesson, a 4 note
+regular chord lesson, and a tetrachord lesson. Next sections show how to write
+new lessons if you like to.
 
 Cunia Notation
 --------------
@@ -49,43 +53,49 @@ Cunia notation is a list of cunia events:
   BaseLength = 1 | 2 | 4 | 8 ...
 
   The tie length is added to the previous length of tied note.
+
   Second integer value in the tuplet value is the number of subdivisions in the
-BaseLength note. First integer value is the amount of those subdivisions to count for
-the note length. For example, a quarter note triplet is represented as follows:
-  {tuplet, 1, 3, 4}
-and two swing eigth notes may be written as follows:
-  {tuplet, 2, 3, 4} and {tuplet, 1, 3, 4}
+BaseLength note. First integer value is the amount of those subdivisions to
+count for the note length.
+
+  For example, a quarter note triplet is represented as follows: {tuplet, 1, 3,
+4} and two swing eigth notes may be written as follows: {tuplet, 2, 3, 4} and
+{tuplet, 1, 3, 4}
 
   * Cunia examples:
 
   - [{notes, [10,20], 4}, {notes, [{10, tie}, 20], 8}, {rest, 8}, {rest, 4}, {notes, [10], 4}]
-  - In priv/st_thomas.cunia file you can see a short study on Sonny Rollins's St Thomas
-    standard. You can load it to the erlang shell by calling
+
+  - In priv/st_thomas.cunia file you can see a short study on Sonny Rollins's St
+    Thomas standard. You can load it to the erlang shell by calling
+
        {ok, [StThomas]} = file:consult(FileLocation)
 
-  erlcunia.midi.player:play(Cunia) plays the Cunia using a external midi player. You can try it
-with the previous examples. The first one is not very musical, but StThomas should play nice.
+  erlcunia_midi_player:play(Cunia) plays the Cunia using a external midi
+player. You can try it with the previous examples. The first one is not very
+musical, but StThomas should play nice.
 
-  Cunia notation is converted to midi with a intermediate step. In that step, Cunias are
-translated to an "Event List". A event list is a list of tuples like {Event, Note, Pulse},
-where:
+  Cunia notation is converted to midi with a intermediate step. In that step,
+Cunias are translated to an "Event List." An event list is a list of tuples like
+{Event, Note, Pulse}, where:
 
   - Event is either note_on or note_off.
   - Note is the midi note (an integer).
-  - Pulse is the time of the event in absolute pulse (they are translated to relative pulses
-    in midi binaries).
+  - Pulse is the time of the event in absolute pulse (they are translated to
+    relative pulses in midi binaries).
 
   This list is ordered by Pulse, so midi translation is straightforward.
 
 Lesson format
 -------------
 
-  One lesson is basically a list of relative cunias (first note is 0) paired with a tag to identify
-each of them:
+  A lesson is basically a list of relative cunias (first note is 0) paired to a
+tag to identify each of them:
 
   Lesson = [{questions, [Question]}]
   Question = {Cunia, Tag}
   Tag = atom()
 
-  The lesson player automatically transposes the relative cunia to a random pitch and plays
-it in the cunia player.
+  The lesson player automatically transposes the relative cunia to a random
+pitch and plays it in the cunia player. The cuia tutor knows the tag for
+currently playing question and copares it to what you think it's the answer.
