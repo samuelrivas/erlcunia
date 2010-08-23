@@ -1,6 +1,6 @@
 {application, erlcunia,
 	[{description, "Ear training suite"},
-	 {vsn, "1.0.0"},
+	 {vsn, "devel"},
 	 {modules, [erlcunia_midi_binary_writer, erlcunia_app,
 		    erlcunia_lesson_tutor, erlcunia_supervisor,
 		    erlcunia_lesson_player, erlcunia_util,
