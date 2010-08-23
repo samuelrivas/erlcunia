@@ -1,3 +1,32 @@
+Introduction
+------------
+
+Erlcunia is a small tool I build to practise ear training exercises. I started
+using solfege, but it didn't match my needs and wasn't easy to customise (this
+was back in 2006).
+
+My goal was:
+
+  * Make easy to write new lessons, at the moment of writing this I was
+    intensive with interval recognition, but later I moved to triad, chord, and
+    scale recognition and didn't have to change anything in the lesson engine.
+  * Make it repeat wrong answers against the question. It's much easier to learn
+    this way and if I recall right, solfege didn't do that.
+
+So it was easy, no bells, nor whistles. It doesn't even have a fancy GUI since I
+fell quite comfortable as it is right now.
+
+FAQ
+---
+Why erlang? -- Why not :) It's easy to me write things in erlang, but any other
+high level language would be fine as well
+
+Why Erlcunia? -- Obviously, Erl comes from erlang. Cunia is difficult to
+explain, it has to do with a music teacher I had. I would't say more. Anyway,
+I made it more natural calling cunia notation to the music representation I
+chose and calling cunia to each music unit so I can say it's Erlcunia because is
+the erlang way of playing cunias :)
+
 Compiling
 ---------
 
