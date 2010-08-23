@@ -3,3 +3,4 @@ ebin/erlcunia/lesson/*.beam
 ebin/erlcunia/midi/*.beam
 ebin/*.beam
 *~
+_build
