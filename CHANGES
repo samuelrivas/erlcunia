@@ -1,0 +1,9 @@
+1.0.0 -- 2010-08-23
+  * Removed erlang module system dependency
+  * Added tag_version.sh script
+  * Added a basic Makefile
+  * Added erlware's sinan support
+
+0.0.0 -- 2010-04-01
+  * First functional version
+  * Includes triads, 4 note chords, tetrachords, intervals, and scale lessons
