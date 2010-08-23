@@ -32,6 +32,19 @@ Compiling
 
 If you have erlang in your execution path, just typing make should work.
 
+Alternatively, you can use erlware to build it. Just type sinan in any directory
+in erlcunia. In this case you must be sure that:
+
+  * Erlcunia sits in a directory named erlcunia, sinan is way strict when
+    enforcing OTP principles and the directory must have the same name as the
+    applciation (with an optional version)
+
+  * Use a sinan version greater than 0.17.1.1. This, and earlier versions, hang
+    when compiling standalone applications. At the moment of writing these
+    lines, such version didn't exist, but there is a fix in commit
+    15c4d24a82e3b698d673 in my own sinan fork:
+    git://github.com/samuelrivas/sinan.git
+
 Running
 -------
 
